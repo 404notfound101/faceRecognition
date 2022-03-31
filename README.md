@@ -9,6 +9,7 @@ Code for face recognition project
 - numpy
 - TensorFlow
 - scipy
+- pyttsx3
 
 ## How to run
 
