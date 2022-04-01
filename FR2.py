@@ -29,7 +29,7 @@ class face_recognition:
 		self.font = cv2.FONT_HERSHEY_SIMPLEX
 		self.faceCascade = cv2.CascadeClassifier(haarcascades)
 
-	def face_detection(self, source , path = None ):# None for webcam
+	def face_detection(self, source , path = None ,save_path = None):# None for webcam
 
 		identity = None
 	
@@ -48,9 +48,6 @@ class face_recognition:
 					box_img = cv2.rectangle(img,(x,y+h),(x+w ,y),(0,255,0),1)
 					box_img = cv2.putText(box_img,identity,(x+w+1,y+h+1),self.font,0.5,(255,0,255),1)
 			
-			# cv2.imwrite("ananth_detected.jpg",box_img)
-			cv2.imshow("Face recognition", box_img)
-			cv2.waitKey(0)
 					
 			
 
@@ -58,6 +55,10 @@ class face_recognition:
 
 		elif source == "video":
 			cap = cv2.VideoCapture(path)
+			fps = cap.get(cv2.CAP_PROP_FPS)
+			w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+			h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+			vid_writer = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
 			success = True 
 			while success:
 				success , frame = cap.read()
@@ -73,15 +74,12 @@ class face_recognition:
 						Cropped = frame[y : y + h , x: x+w ]
 						Cropped = cv2.cvtColor(Cropped , cv2.COLOR_BGR2RGB)
 						identity = self.face_recognition(Cropped)
-						box_img = cv2.rectangle(frame,(x,y+h),(x+w ,y),(0,255,0),1)
-						box_img = cv2.putText(box_img,identity,(x+w+1,y+h+1),self.font,0.5,(255,0,255),1)
-			
+						frame = cv2.rectangle(frame,(x,y+h),(x+w ,y),(0,255,0),1)
+						frame = cv2.putText(frame,identity,(x+w+1,y+h+1),self.font,0.5,(255,0,255),1)
 
-					cv2.imshow("Face recognition", box_img)
-					if cv2.waitKey(1) & 0xFF == ord('q'):
-						break
+				vid_writer.write(frame)	
+			vid_writer.release() 	
 			cap.release()
-			cv2.destroyAllWindows()
 				
 				
 
