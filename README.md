@@ -20,5 +20,5 @@ python main.py --source YOUR_SOURCE_TYPE --source_path YOUR_SOURCE
 
 To register a recognition pattern record for a new user. you can run this command:
 ```
-python archiving.py --name USER_NAME
+python registration.py --name USER_NAME
 ```

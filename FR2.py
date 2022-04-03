@@ -31,7 +31,7 @@ class face_recognition:
 
 	def face_detection(self, source , path = None ,save_path = None):# None for webcam
 
-		identity = None
+		identity_list = None
 	
 		if source == "image":
 			img = cv2.imread(path)
@@ -40,11 +40,13 @@ class face_recognition:
 			face = self.faceCascade.detectMultiScale(img,1.1,4)
 				
 			if len(face) != 0:
-				
+				identity_list = set()
 				for (x,y,w,h) in face:
 					Cropped = img[y : y + h , x: x+w ]
 					Cropped = cv2.cvtColor(Cropped , cv2.COLOR_BGR2RGB)
 					identity = self.face_recognition(Cropped)
+					self.text2speech(identity)
+					identity_list.add(identity)
 					box_img = cv2.rectangle(img,(x,y+h),(x+w ,y),(0,255,0),1)
 					box_img = cv2.putText(box_img,identity,(x+w+1,y+h+1),self.font,0.5,(255,0,255),1)
 			
@@ -55,10 +57,11 @@ class face_recognition:
 
 		elif source == "video":
 			cap = cv2.VideoCapture(path)
-			fps = cap.get(cv2.CAP_PROP_FPS)
-			w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-			h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-			vid_writer = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
+			if save_path is not None:
+				fps = cap.get(cv2.CAP_PROP_FPS)
+				w_ori = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+				h_ori = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+				vid_writer = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w_ori,h_ori))
 			success = True 
 			while success:
 				success , frame = cap.read()
@@ -69,16 +72,20 @@ class face_recognition:
 				face = self.faceCascade.detectMultiScale(frame_gray,1.3,5)
 		
 				if len(face) != 0:
-					
+					identity_list = set()
 					for (x,y,w,h) in face:
 						Cropped = frame[y : y + h , x: x+w ]
 						Cropped = cv2.cvtColor(Cropped , cv2.COLOR_BGR2RGB)
 						identity = self.face_recognition(Cropped)
+						identity_list.add(identity)
 						frame = cv2.rectangle(frame,(x,y+h),(x+w ,y),(0,255,0),1)
 						frame = cv2.putText(frame,identity,(x+w+1,y+h+1),self.font,0.5,(255,0,255),1)
-
-				vid_writer.write(frame)	
-			vid_writer.release() 	
+				if save_path is not None:
+					frame = cv2.resize(frame,(w_ori,h_ori))
+					vid_writer.write(frame)
+					#print("writing")
+			if save_path is not None:	
+				vid_writer.release() 	
 			cap.release()
 				
 				
@@ -97,11 +104,12 @@ class face_recognition:
 				face = self.faceCascade.detectMultiScale(frame,1.3,5)
 				
 				if len(face) != 0:
-					
+					identity_list = set()
 					for (x,y,w,h) in face:
 						Cropped = frame[y : y + h , x: x+w ]
 						Cropped = cv2.cvtColor(Cropped , cv2.COLOR_BGR2RGB)
 						identity = self.face_recognition(Cropped)
+						identity_list.add(identity)
 						box_img = cv2.rectangle(frame,(x,y+h),(x+w ,y),(0,255,0),1)
 						box_img = cv2.putText(box_img,identity,(x+w+1,y+h+1),self.font,0.5,(255,0,255),1)
 			
@@ -116,7 +124,7 @@ class face_recognition:
 		else:
 			print("Not a valid source!")
 
-		return identity
+		return identity_list
 
 
 	def face_recognition(self,image):
@@ -131,7 +139,7 @@ class face_recognition:
 					min_dist = dist
 					identity = name
 		print("minimum distance",min_dist)
-		self.text2speech(identity)			
+		#self.text2speech(identity)			
 		return identity
 
 	def train(self,name,img_count):

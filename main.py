@@ -9,10 +9,10 @@ def main(model = "haarcascades/haarcascade_frontalface_default.xml", source = "i
 	receive args listed in parse_opt
 	return and print the archived name of any recognized face
 	"""
-	if archive:
-		database_exist = True
-	else:
+	if archive is None:
 		database_exist = False
+	else:
+		database_exist = True
 	face_recog = face_recognition(threshold= threshold, haarcascades = model,
 	database_exist = database_exist, database_path = archive)
 
