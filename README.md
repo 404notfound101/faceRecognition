@@ -15,10 +15,10 @@ Code for face recognition project
 
 To recognize your source, you can run this command:
 ```
-python main.py --source YOUR_SOURCE_TYPE --source_path YOUR_SOURCE
+python main.py --source YOUR_SOURCE_TYPE --source_path YOUR_SOURCE --save_path SAVE_PATH(optional for creating demo video)
 ```
 
-To register a recognition pattern record for a new user. you can run this command:
+To register a recognition pattern record for a new user through webcam. you can run this command:
 ```
 python registration.py --name USER_NAME
 ```
